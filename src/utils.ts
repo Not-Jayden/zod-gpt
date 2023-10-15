@@ -63,4 +63,22 @@ export function zodToJsonSchema(schema: z.ZodType): any {
   );
 }
 
+export function checkIsObject(schema: z.ZodTypeAny): boolean {
+  if (schema._def.typeName === z.ZodFirstPartyTypeKind.ZodObject) {
+    return true;
+  }
+  if (schema._def.typeName !== z.ZodFirstPartyTypeKind.ZodUnion) {
+    return false;
+  }
+  const childTypes = schema._def.options;
+
+  return childTypes.every((childType: any) => {
+    if (childType._def.typeName === z.ZodFirstPartyTypeKind.ZodUnion) {
+      return checkIsObject(childType);
+    }
+
+    return childType._def.typeName === z.ZodFirstPartyTypeKind.ZodObject;
+  });
+}
+
 export type MaybePromise<T> = Promise<T> | T;

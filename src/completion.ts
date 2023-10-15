@@ -8,7 +8,12 @@ import { defaults } from 'lodash';
 import { z } from 'zod';
 
 import type { RequestOptions, Response } from './types';
-import { debug, parseUnsafeJson, zodToJsonSchema } from './utils';
+import {
+  checkIsObject,
+  debug,
+  parseUnsafeJson,
+  zodToJsonSchema,
+} from './utils';
 
 const FunctionName = 'print';
 const FunctionDescription =
@@ -44,10 +49,7 @@ export async function completion<T extends z.ZodType = z.ZodString>(
     Defaults,
   );
 
-  if (
-    opt.schema &&
-    (opt.schema._def as any).typeName !== z.ZodFirstPartyTypeKind.ZodObject
-  ) {
+  if (opt.schema && checkIsObject(opt.schema)) {
     throw new Error('Schemas can ONLY be an object');
   }
   debug.log('⬆️ sending request:', message);
